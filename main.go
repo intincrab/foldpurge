@@ -12,7 +12,7 @@ var (
 	configFile string
 	paths      []string
 	quiet      bool
-	rootCmd    = &cobra.Command{Use: "folder_cleaner"}
+	rootCmd    = &cobra.Command{Use: "foldpurge"}
 )
 
 func init() {
