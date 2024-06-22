@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
+	"github.com/fatih/color"
 )
 
 var (
@@ -14,6 +15,11 @@ var (
 	quiet      bool
 	rootCmd    = &cobra.Command{Use: "foldpurge"}
 )
+
+var infoColor = color.New(color.FgCyan).SprintFunc()
+var successColor = color.New(color.FgGreen).SprintFunc()
+var errorColor = color.New(color.FgRed).SprintFunc()
+var warnColor = color.New(color.FgHiYellow).SprintFunc() 
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "", "Path to config file")
@@ -37,7 +43,7 @@ func init() {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Println(errorColor(fmt.Sprintf("Error: %v", err)))
 		os.Exit(1)
 	}
 }
@@ -57,15 +63,17 @@ func getValidPaths() ([]string, error) {
 	for _, path := range allPaths {
 		if _, err := os.Stat(path); err == nil {
 			validPaths = append(validPaths, path)
+		} else {
+			fmt.Println(warnColor(fmt.Sprintf("Warning: Path not found: %s", path)))
 		}
 	}
 
 	if len(validPaths) == 0 {
-		return nil, fmt.Errorf("no valid paths found")
+		return nil, fmt.Errorf(errorColor("no valid paths found"))
 	}
 
 	if !quiet {
-		fmt.Printf("%d valid entries detected\n", len(validPaths))
+		fmt.Println(infoColor(fmt.Sprintf("%d valid entries detected", len(validPaths))))
 	}
 
 	return validPaths, nil
@@ -74,39 +82,42 @@ func getValidPaths() ([]string, error) {
 func scanFolders(cmd *cobra.Command, args []string) {
 	validPaths, err := getValidPaths()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(errorColor(fmt.Sprintf("Error: %v", err)))
 		return
 	}
 
 	for _, path := range validPaths {
 		size, err := getDirSize(path)
 		if err != nil {
-			fmt.Printf("Error scanning %s: %v\n", path, err)
+			fmt.Println(errorColor(fmt.Sprintf("Error scanning %s: %v", path, err)))
 			continue
 		}
 		if !quiet {
-			fmt.Printf("%s: %d bytes\n", path, size)
+			fmt.Printf("%s: %s\n", path, infoColor(fmt.Sprintf("%d bytes", size)))
 		}
 	}
 }
 
 func nukeFolders(cmd *cobra.Command, args []string) {
-	validPaths, err := getValidPaths()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+    validPaths, err := getValidPaths()
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
 
 	for _, path := range validPaths {
-		err := os.RemoveAll(path)
-		if err != nil {
-			fmt.Printf("Error deleting %s: %v\n", path, err)
-			continue
-		}
-		if !quiet {
-			fmt.Printf("%s has been deleted\n", path)
-		}
-	}
+        err := os.RemoveAll(path)
+        if err != nil {
+            fmt.Println(errorColor(fmt.Sprintf("Error deleting %s: %v", path, err)))
+            continue
+        }
+        
+        folderName := filepath.Base(path)
+        
+        if !quiet {
+            fmt.Println(successColor(fmt.Sprintf("✔ %s  has been deleted successfully", folderName)))
+        }
+    }
 }
 
 func getDirSize(path string) (int64, error) {
