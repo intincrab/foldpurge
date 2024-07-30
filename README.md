@@ -1,25 +1,58 @@
-## Usage
+# foldpurge
 
+`foldpurge` is a command-line utility for scanning folders to calculate their size and deleting all items within specified folders. 
+
+Powered by `cobra` + `fatih/color`.
+
+## features
+
+- scan folders to calculate their size
+- delete all items under specified folders
+- supports custom configuration files for specifying paths
+- quiet mode to suppress all output except errors
+
+## installation
+
+to install `foldpurge`, clone the repository and build the binary using `go build`, or get it from the releases.
+
+```sh
+git clone https://github.com/yourusername/foldpurge.git
+cd foldpurge
+go build
 ```
-foldpurge scan -p folder_1 folder_2 folder_n
-foldpurge nuke -p folder_1 folder_2 folder_n
+### commands and flags
+
+| command | description | flags | example |
+|---------|-------------|-------|---------|
+| `scan`  | scans folders and calculates their size | `--config, -c` : path to config file <br> `--path, -p` : manually specify folders to process <br> `--quiet, -q` : suppresses all output except stderr | `./foldpurge scan -p /path/to/folder1 -p /path/to/folder2` |
+| `nuke`  | deletes all items under specified folders | `--config, -c` : path to config file <br> `--path, -p` : manually specify folders to process <br> `--quiet, -q` : suppresses all output except stderr | `./foldpurge nuke -p /path/to/folder1 -p /path/to/folder2` |
+
+### global flags
+
+| flag         | description                         | example |
+|--------------|-------------------------------------|---------|
+| `--config, -c` | path to config file                | `./foldpurge scan --config /path/to/config.yaml` |
+| `--path, -p`   | manually specify folders to process | `./foldpurge scan --path /path/to/folder1 --path /path/to/folder2` |
+| `--quiet, -q`  | suppresses all output except stderr | `./foldpurge scan --quiet` |
+
+## examples
+
+to scan folders and calculate their size:
+
+```sh
+./foldpurge scan --path /path/to/folder1 --path /path/to/folder2
 ```
 
-## Full usage:
+to delete all items under specified folders:
+
+```sh
+./foldpurge nuke --path /path/to/folder1 --path /path/to/folder2
 ```
-Usage:
-  foldpurge [command]
 
-Available Commands:
-  help        Help about any command
-  nuke        Delete all items under specified folders
-  scan        Scans folders and calculate their size
+## license
 
-Flags:
-  -c, --config string    Path to config file
-  -h, --help             help for foldpurge
-  -p, --path strings     Manually specify folders to process
-  -q, --quiet            Suppresses all output except stderr
+see the [LICENSE](LICENSE) file for details.
 
-Use "foldpurge [command] --help" for more information about a command.
-```
+## contributing
+
+contributions are welcome! please open an issue or submit a pull request on GitHub.
